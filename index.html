@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mersi Clinic | Dashboard ติดตามลูกค้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#8b9677;--green-dark:#6b7459;--green-muted:#aab5a4;
+  --taupe:#a9a88e;--gold:#d9cfaa;--cream:#ebe7d3;--cream-bg:#f5f3ee;
+  --bronze:#8a7650;--teal:#33676f;--teal-dark:#255059;
+  --dark:#2d3a28;--text:#3a3a2e;--text-muted:#7a7a6a;
+  --white:#ffffff;--border:#e0ddd4;--shadow:rgba(45,58,40,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:var(--cream-bg);color:var(--text);font-size:15px}
+#page-login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,var(--dark) 0%,#3d5238 50%,var(--teal-dark) 100%)}
+.login-card{background:var(--white);border-radius:20px;padding:44px 40px;width:360px;
+  box-shadow:0 24px 64px rgba(0,0,0,.25)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .brand{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:700;
+  color:var(--green);letter-spacing:1px;line-height:1}
+.login-logo .clinic{font-size:10px;letter-spacing:5px;color:var(--taupe);
+  font-weight:600;margin-top:2px;text-transform:uppercase}
+.login-logo .divider{width:40px;height:1px;background:var(--gold);margin:10px auto 0}
+.login-card h2{text-align:center;font-size:15px;color:var(--text-muted);margin-bottom:24px;font-weight:400}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;
+  font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.form-group input{width:100%;padding:11px 14px;border:1.5px solid var(--border);
+  border-radius:10px;font-size:15px;font-family:inherit;transition:border .2s,box-shadow .2s;
+  background:var(--cream-bg)}
+.form-group input:focus{outline:none;border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(139,150,119,.15);background:var(--white)}
+.btn-login{width:100%;padding:13px;background:var(--green);color:var(--white);
+  border:none;border-radius:10px;font-size:15px;font-family:inherit;font-weight:600;
+  cursor:pointer;margin-top:8px;letter-spacing:.5px;transition:background .2s,transform .1s}
+.btn-login:hover{background:var(--green-dark)}
+.btn-login:active{transform:scale(.98)}
+.btn-login:disabled{background:var(--green-muted);cursor:not-allowed}
+.login-error{margin-top:14px;padding:10px 14px;background:#fff8f5;
+  border:1px solid #f5c6b0;border-radius:10px;color:#b94a1a;font-size:13px;display:none}
+#page-dashboard{display:none;min-height:100vh}
+nav{background:var(--dark);color:var(--white);padding:14px 28px;
+  display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.nav-logo{display:flex;align-items:baseline;gap:6px;flex:none}
+.nav-logo .brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;
+  color:var(--gold);letter-spacing:1px}
+.nav-logo .clinic{font-size:9px;letter-spacing:3px;color:var(--green-muted);font-weight:600;
+  text-transform:uppercase;align-self:flex-end;margin-bottom:2px}
+.nav-title{font-size:12px;color:rgba(255,255,255,.5);flex:1;margin-left:8px}
+.nav-user{font-size:13px;color:var(--gold);flex:none;font-weight:500}
+.nav-role-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-left:8px}
+.role-admin{background:rgba(217,207,170,.2);color:var(--gold)}
+.role-zone{background:rgba(51,103,111,.3);color:#a8d5db}
+.role-marketing{background:rgba(138,118,80,.3);color:#e8d5a8}
+.role-branch{background:rgba(139,150,119,.3);color:#c8d5be}
+.btn-logout{padding:7px 16px;background:transparent;border:1.5px solid rgba(255,255,255,.25);
+  color:rgba(255,255,255,.8);border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;transition:background .2s}
+.btn-logout:hover{background:rgba(255,255,255,.1)}
+.page-body{padding:24px 28px;max-width:1440px;margin:0 auto}
+.filter-bar{background:var(--white);border-radius:14px;padding:14px 20px;
+  display:flex;gap:12px;align-items:center;margin-bottom:22px;
+  box-shadow:0 1px 6px var(--shadow);flex-wrap:wrap;border:1px solid var(--border)}
+.filter-bar select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:14px;font-family:inherit;background:var(--white);cursor:pointer;min-width:160px;color:var(--text)}
+.filter-bar select:focus{outline:none;border-color:var(--green)}
+.btn-filter{padding:8px 20px;background:var(--teal);color:var(--white);border:none;
+  border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-filter:hover{background:var(--teal-dark)}
+.btn-reset{background:var(--taupe)!important}
+.btn-reset:hover{background:var(--bronze)!important}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:22px}
+.card{background:var(--white);border-radius:14px;padding:22px 24px;
+  box-shadow:0 1px 6px var(--shadow);border:1px solid var(--border);border-left:4px solid var(--green)}
+.card-green{border-left-color:var(--green)}
+.card-teal{border-left-color:var(--teal)}
+.card-gold{border-left-color:var(--bronze)}
+.card-muted{border-left-color:var(--taupe)}
+.card-value{font-size:38px;font-weight:700;line-height:1.1;color:var(--dark);font-family:'Sarabun',serif}
+.card-label{font-size:13px;color:var(--text-muted);margin-top:6px;font-weight:500}
+.card-note{font-size:11px;color:var(--taupe);margin-top:3px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+@media(max-width:960px){.two-col{grid-template-columns:1fr}}
+.panel{background:var(--white);border-radius:14px;padding:22px 24px;
+  box-shadow:0 1px 6px var(--shadow);margin-bottom:22px;border:1px solid var(--border)}
+.panel h3{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:16px;
+  padding-bottom:10px;border-bottom:2px solid var(--cream);letter-spacing:.3px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead tr{background:var(--cream-bg)}
+th{padding:10px 12px;text-align:left;font-weight:600;color:var(--text-muted);font-size:12px;white-space:nowrap;letter-spacing:.3px}
+td{padding:9px 12px;border-bottom:1px solid #f0ede6;color:var(--text);vertical-align:middle}
+tr:hover td{background:#faf9f5}
+.rank-num{font-weight:700;color:var(--teal);text-align:center;width:36px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-appt{background:#d4ebe0;color:#1a5c3a}
+.badge-interest{background:#d4e8ea;color:#1e5258}
+.badge-noanswer{background:#f5ddd6;color:#8b2e14}
+.badge-notime{background:#f0e8d0;color:#7a5210}
+.badge-notinterest{background:var(--cream);color:var(--bronze)}
+.badge-other{background:#e8e4f0;color:#4a3a6a}
+.outcome-bar{height:16px;border-radius:4px;min-width:4px;display:inline-block;vertical-align:middle}
+.bar-appt{background:#5a9e7a}.bar-interest{background:var(--teal)}.bar-noanswer{background:#c0614a}
+.bar-notime{background:var(--bronze)}.bar-notinterest{background:var(--taupe)}.bar-other{background:#7a6aa0}
+.tbl-data-wrap{overflow-x:auto;max-height:500px;overflow-y:auto}
+#tbl-data th{position:sticky;top:0;background:var(--cream-bg);z-index:1}
+.footer{text-align:center;color:var(--taupe);font-size:12px;padding:16px;
+  display:flex;align-items:center;justify-content:center;gap:16px}
+.btn-refresh{padding:6px 14px;background:var(--cream);color:var(--green-dark);
+  border:1.5px solid var(--gold);border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;font-weight:600;transition:background .2s}
+.btn-refresh:hover{background:var(--gold)}
+.loading-overlay{position:fixed;inset:0;background:rgba(45,58,40,.45);
+  display:none;align-items:center;justify-content:center;z-index:999}
+.loading-box{background:var(--white);border-radius:16px;padding:32px 44px;text-align:center;color:var(--text-muted)}
+.spinner{width:36px;height:36px;border:4px solid var(--cream);border-top-color:var(--green);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;color:var(--taupe);padding:24px!important}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="page-login">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand">Mersi</div>
+      <div class="clinic">Clinic</div>
+      <div class="divider"></div>
+    </div>
+    <h2>เข้าสู่ระบบ</h2>
+    <form onsubmit="doLogin(event)">
+      <div class="form-group">
+        <label>ชื่อผู้ใช้</label>
+        <input type="text" id="inp-user" placeholder="username" autocomplete="username" autocapitalize="none">
+      </div>
+      <div class="form-group">
+        <label>รหัสผ่าน</label>
+        <input type="password" id="inp-pass" placeholder="password" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-login" id="btn-submit">เข้าสู่ระบบ</button>
+    </form>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="overlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div>กำลังโหลดข้อมูล...</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard">
+  <nav>
+    <div class="nav-logo">
+      <span class="brand">Mersi</span>
+      <span class="clinic">Clinic</span>
+    </div>
+    <div class="nav-title">Dashboard ติดตามลูกค้า</div>
+    <div class="nav-user">
+      <span id="nav-name">—</span>
+      <span id="nav-badge" class="nav-role-badge"></span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+  </nav>
+
+  <div class="page-body">
+
+    <div id="filter-bar" class="filter-bar" style="display:none">
+      <select id="sel-branch" onchange="onBranchChange()">
+        <option value="">ทุกสาขา</option>
+      </select>
+      <select id="sel-staff">
+        <option value="">ทุกพนักงาน</option>
+      </select>
+      <button class="btn-filter" onclick="applyFilter()">🔍 ค้นหา</button>
+      <button class="btn-filter btn-reset" onclick="resetFilter()">รีเซ็ต</button>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card card-green">
+        <div class="card-value" id="stat-today">—</div>
+        <div class="card-label">ติดตามวันนี้ (ราย)</div>
+      </div>
+      <div class="card card-teal">
+        <div class="card-value" id="stat-total">—</div>
+        <div class="card-label">ติดตามทั้งหมด (ราย)</div>
+      </div>
+      <div class="card card-gold">
+        <div class="card-value" id="stat-appt">—</div>
+        <div class="card-label">ทำนัดหมายสำเร็จ (ราย)</div>
+      </div>
+      <div class="card card-muted">
+        <div class="card-value" id="stat-fail">—</div>
+        <div class="card-label">ติดตามไม่สำเร็จ (ราย)</div>
+        <div class="card-note">ไม่รับสาย + ไม่สะดวก + อื่นๆ</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h3>🏆 Ranking พนักงานที่ติดตามสูงสุด</h3>
+        <table>
+          <thead><tr><th>#</th><th>พนักงาน</th><th>สาขา</th><th style="text-align:right">ติดตาม (ราย)</th><th style="text-align:right">นัดหมาย</th></tr></thead>
+          <tbody id="tbody-rank"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>📊 Top Performance การติดตามรายสาขา</h3>
+        <table>
+          <thead><tr><th>#</th><th>สาขา</th><th style="text-align:right">ติดตาม</th><th style="text-align:right">นัดหมาย</th><th style="text-align:right">ไม่สำเร็จ</th></tr></thead>
+          <tbody id="tbody-branch"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>📋 รายละเอียดผลตอบรับ</h3>
+      <table>
+        <thead><tr><th>ประเภท</th><th style="text-align:right">จำนวน (ราย)</th><th style="text-align:right">%</th><th>แถบ</th></tr></thead>
+        <tbody id="tbody-outcome"></tbody>
+      </table>
+    </div>
+
+    <div id="section-data" class="panel" style="display:none">
+      <h3>📝 ข้อมูลการติดตามลูกค้า</h3>
+      <div class="tbl-data-wrap">
+        <table id="tbl-data">
+          <thead>
+            <tr>
+              <th>วันที่</th><th>สาขา</th><th>พนักงาน</th>
+              <th>HN</th><th>ชื่อลูกค้า</th><th>เบอร์โทร</th>
+              <th>หัวข้อในการติดตาม</th><th>ผลตอบรับ</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-data"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>อัปเดตล่าสุด: <span id="last-update">—</span></span>
+      <button class="btn-refresh" onclick="refresh()">🔄 รีเฟรช</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const APP_URL = 'https://script.google.com/macros/s/AKfycbxVBUigGPab_oLayVbRN1odM-Q_6XxB6aDEcGCa_0-wbcJhGv6ZxECrDU4U5wImDeg/exec';
+
+let TOKEN='', USER_ROLE='', USER_NAME='', USER_ZONE=null;
+let allBranches=[], allStaff=[];
+
+window.onload = async () => {
+  const saved = sessionStorage.getItem('mersi_token');
+  if (saved) {
+    TOKEN = saved;
+    setOverlay(true);
+    const v = await api('verify', { token: TOKEN });
+    setOverlay(false);
+    if (v.success) { USER_ROLE=v.role; USER_NAME=v.name; USER_ZONE=v.zone; showDashboard(); }
+    else { sessionStorage.removeItem('mersi_token'); showLogin(); }
+  } else { showLogin(); }
+};
+
+async function doLogin(e) {
+  e.preventDefault();
+  const user = document.getElementById('inp-user').value.trim();
+  const pass = document.getElementById('inp-pass').value;
+  if (!user || !pass) { showErr('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'); return; }
+  const btn = document.getElementById('btn-submit');
+  btn.disabled=true; btn.textContent='กำลังเข้าสู่ระบบ...'; hideErr();
+  const hash = await sha256(pass);
+  const res  = await api('login', { user, pass: hash });
+  btn.disabled=false; btn.textContent='เข้าสู่ระบบ';
+  if (res.success && res.token) {
+    TOKEN=res.token; USER_ROLE=res.role; USER_NAME=res.name; USER_ZONE=res.zone;
+    sessionStorage.setItem('mersi_token', TOKEN);
+    showDashboard();
+  } else { showErr(res.error || 'เข้าสู่ระบบไม่สำเร็จ'); }
+}
+
+async function doLogout() {
+  await api('logout', { token: TOKEN });
+  sessionStorage.removeItem('mersi_token');
+  TOKEN=''; USER_ROLE=''; USER_NAME=''; USER_ZONE=null;
+  document.getElementById('page-dashboard').style.display='none';
+  showLogin();
+}
+
+function showLogin() {
+  document.getElementById('page-login').style.display='flex';
+  document.getElementById('page-dashboard').style.display='none';
+  setTimeout(()=>document.getElementById('inp-user').focus(),100);
+}
+function showErr(msg) { const e=document.getElementById('login-error'); e.textContent=msg; e.style.display='block'; }
+function hideErr()    { document.getElementById('login-error').style.display='none'; }
+
+async function showDashboard() {
+  document.getElementById('page-login').style.display='none';
+  document.getElementById('page-dashboard').style.display='block';
+  const roleLabel = {admin:'กรรมการ',zone_manager:'ผจก.เขต',marketing:'การตลาด',branch_staff:'สาขา'};
+  const roleClass = {admin:'role-admin',zone_manager:'role-zone',marketing:'role-marketing',branch_staff:'role-branch'};
+  document.getElementById('nav-name').textContent = USER_NAME;
+  const badge = document.getElementById('nav-badge');
+  badge.textContent = roleLabel[USER_ROLE]||USER_ROLE;
+  badge.className   = 'nav-role-badge '+(roleClass[USER_ROLE]||'role-branch');
+  const canFilter = USER_ROLE==='admin' || USER_ROLE==='zone_manager' || USER_ROLE==='marketing';
+  document.getElementById('filter-bar').style.display   = canFilter ? 'flex' : 'none';
+  document.getElementById('section-data').style.display = canFilter ? 'block' : 'none';
+  await refresh();
+}
+
+async function refresh() {
+  setOverlay(true);
+  const branch = document.getElementById('sel-branch')?.value||'';
+  const staff  = document.getElementById('sel-staff')?.value||'';
+  const sum = await api('summary', {token:TOKEN, branch, staff});
+  if (!sum.success) { setOverlay(false); showErr(sum.error||'โหลดข้อมูลไม่สำเร็จ'); return; }
+  renderSummary(sum);
+  populateFilters(sum.branches||[], sum.staffList||[]);
+  const canFilter = USER_ROLE==='admin' || USER_ROLE==='zone_manager' || USER_ROLE==='marketing';
+  if (canFilter) {
+    const full = await api('data', {token:TOKEN, branch, staff});
+    if (full.success) renderDataTable(full.data||[]);
+  }
+  document.getElementById('last-update').textContent = formatTs(sum.timestamp);
+  setOverlay(false);
+}
+
+async function applyFilter() { await refresh(); }
+async function resetFilter()  {
+  document.getElementById('sel-branch').value='';
+  document.getElementById('sel-staff').value='';
+  await refresh();
+}
+function onBranchChange() {
+  const s=document.getElementById('sel-staff');
+  s.innerHTML='<option value="">ทุกพนักงาน</option>';
+  allStaff.forEach(x=>{ const o=document.createElement('option');o.value=x;o.textContent=x;s.appendChild(o); });
+}
+
+function renderSummary(d) {
+  const oc=d.outcomes||{};
+  const fail=(oc.noanswer||0)+(oc.notime||0)+(oc.other||0);
+  setText('stat-today',fmt(d.todayCount)); setText('stat-total',fmt(d.total));
+  setText('stat-appt',fmt(oc.appt||0));   setText('stat-fail',fmt(fail));
+  renderRanking(d.staffRank||[]); renderBranchPerf(d.branchStats||[]); renderOutcome(oc,d.total);
+}
+
+function renderRanking(list) {
+  const tb=document.getElementById('tbody-rank'); tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="5" class="empty">ไม่มีข้อมูล</td></tr>';return;}
+  list.slice(0,15).forEach((s,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="rank-num">${medal(i)}</td><td>${esc(s.staff)}</td><td style="font-size:12px;color:var(--text-muted)">${esc(s.branch)}</td><td style="text-align:right;font-weight:600">${fmt(s.total)}</td><td style="text-align:right"><span class="badge badge-appt">${fmt(s.appt)}</span></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderBranchPerf(list) {
+  const tb=document.getElementById('tbody-branch'); tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="5" class="empty">ไม่มีข้อมูล</td></tr>';return;}
+  list.forEach((b,i)=>{
+    const fail=(b.noanswer||0)+(b.notime||0)+(b.other||0);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="rank-num">${medal(i)}</td><td style="font-weight:600">${esc(b.branch)}</td><td style="text-align:right">${fmt(b.total)}</td><td style="text-align:right"><span class="badge badge-appt">${fmt(b.appt||0)}</span></td><td style="text-align:right"><span class="badge badge-noanswer">${fmt(fail)}</span></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderOutcome(oc,total) {
+  const ROWS=[
+    {key:'appt',       label:'ทำนัดหมาย', cls:'appt'},
+    {key:'interest',   label:'สนใจ',       cls:'interest'},
+    {key:'noanswer',   label:'ไม่รับสาย',  cls:'noanswer'},
+    {key:'notinterest',label:'ไม่สนใจ',    cls:'notinterest'},
+    {key:'notime',     label:'ไม่สะดวก',   cls:'notime'},
+    {key:'other',      label:'อื่นๆ',       cls:'other'},
+  ];
+  const tb=document.getElementById('tbody-outcome'); tb.innerHTML='';
+  ROWS.forEach(r=>{
+    const cnt=oc[r.key]||0, pct=total>0?Math.round(cnt/total*100):0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="badge badge-${r.cls}">${r.label}</span></td><td style="text-align:right;font-weight:600">${fmt(cnt)}</td><td style="text-align:right;color:var(--text-muted)">${pct}%</td><td style="min-width:140px"><div class="outcome-bar bar-${r.cls}" style="width:${pct}%;max-width:200px"></div></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderDataTable(rows) {
+  const tb=document.getElementById('tbody-data'); tb.innerHTML='';
+  if(!rows.length){tb.innerHTML='<tr><td colspan="8" class="empty">ไม่มีข้อมูล</td></tr>';return;}
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="white-space:nowrap;font-size:13px">${esc(r.date)}</td><td>${esc(r.branch)}</td><td>${esc(r.staff)}</td><td style="font-family:monospace;font-size:12px">${esc(r.hn)}</td><td>${esc(r.name)}</td><td style="white-space:nowrap;font-size:13px">${esc(r.phone)}</td><td style="max-width:200px;font-size:13px">${esc(r.topic)}</td><td><span class="badge badge-${r.outcomeClass}">${esc(r.outcome)}</span></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function populateFilters(branches,staff) {
+  allBranches=branches; allStaff=staff;
+  const brSel=document.getElementById('sel-branch'), curBr=brSel.value;
+  brSel.innerHTML='<option value="">ทุกสาขา</option>';
+  branches.forEach(b=>{ const o=document.createElement('option');o.value=b;o.textContent=b;if(b===curBr)o.selected=true;brSel.appendChild(o); });
+  const stSel=document.getElementById('sel-staff'), curSt=stSel.value;
+  stSel.innerHTML='<option value="">ทุกพนักงาน</option>';
+  staff.forEach(s=>{ const o=document.createElement('option');o.value=s;o.textContent=s;if(s===curSt)o.selected=true;stSel.appendChild(o); });
+}
+
+async function api(action,params) {
+  try {
+    const qs=new URLSearchParams({action,...params}).toString();
+    const res=await fetch(APP_URL+'?'+qs, {redirect:'follow'});
+    return await res.json();
+  } catch(err) { return {success:false,error:'เชื่อมต่อ GAS ไม่ได้: '+err.message}; }
+}
+async function sha256(str) {
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function fmt(n)       { return Number(n||0).toLocaleString('th-TH'); }
+function esc(s)       { const d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+function setText(id,v){ const el=document.getElementById(id);if(el)el.textContent=v; }
+function formatTs(s)  { return s?s.replace('T',' ').substring(0,16):'—'; }
+function setOverlay(v){ document.getElementById('overlay').style.display=v?'flex':'none'; }
+function medal(i)     { return i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1); }
+</script>
+</body>
+</html>
